@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <title>AI Chatbot for SMM Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            font-size: 18px;
+        }
+
+        #chat-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #user-input {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #chat-history {
+            background-color: #ffffff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 20px auto;
+            width: 70%;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Style the chat messages */
+        #chat-history div {
+            margin: 5px;
+        }
+
+        /* Style user messages */
+        .user-message {
+            text-align: right;
+        }
+
+        /* Style bot messages */
+        .bot-message {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the SMM Panel Chatbot</h1>
+    <p>Please enter your complaint or request below:</p>
+
+    <!-- Create a form for user input -->
+    <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button type="submit">Submit</button>
+    </form>
+
+    <!-- Display area for chat history -->
+    <div id="chat-history">
+        <!-- Chat messages will be displayed here -->
+    </div>
+
+    <script>
+        // JavaScript code for handling user input and chat interactions
+        document.addEventListener("DOMContentLoaded", function () {
+            const chatForm = document.getElementById("chat-form");
+            const userInputField = document.getElementById("user-input");
+            const chatHistory = document.getElementById("chat-history");
+
+            chatForm.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const userMessage = userInputField.value;
+
+                // Display user's message in the chat history
+                displayMessage("user", userMessage);
+
+                // Make an AJAX request to the server
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", "/chat", true); // Update this URL as needed
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4 && xhr.status === 200) {
+                        const botResponse = JSON.parse(xhr.responseText).botResponse;
+                        displayMessage("bot", botResponse);
+                    }
+                };
+
+                xhr.send(JSON.stringify({ userMessage: userMessage }));
+
+                userInputField.value = ""; // Clear the input field
+            });
+
+            function displayMessage(sender, message) {
+                const messageDiv = document.createElement("div");
+                messageDiv.textContent = `${sender.charAt(0).toUpperCase() + sender.slice(1)}: ${message}`;
+                messageDiv.classList.add(`${sender}-message`);
+                chatHistory.appendChild(messageDiv);
+
+                // Scroll to the bottom of the chat history
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
